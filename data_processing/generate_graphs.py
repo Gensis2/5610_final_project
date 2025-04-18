@@ -49,7 +49,7 @@ def generate_graphs(df, x, y, file_name, output_dir):
 
     # Example: Generate a simple line graph
     plt.figure(figsize=(10, 5))
-    plt.plot(x_data, y_data)
+    plt.plot(range(len(x_data)), y_data, marker='o')  # Use range(len(x_data)) for consistent spacing
 
     match x:
         case 'num_epochs':
@@ -68,7 +68,7 @@ def generate_graphs(df, x, y, file_name, output_dir):
         case 'training_loss':
             y_label = 'Training Loss'
 
-    plt.xticks(ticks=x_data, labels=x_data, rotation=45)
+    plt.xticks(ticks=range(len(x_data)), labels=x_data, rotation=45)  # Ensure xticks match x_data
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.grid()
