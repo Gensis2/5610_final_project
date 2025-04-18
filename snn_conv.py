@@ -22,7 +22,7 @@ class snn_bp(torch.autograd.Function):
         return grad
 
 class SNN_Conv(nn.Module):
-    def __init__(self, num_steps, leak_mem=0.95, img_size=28, num_classes=10):
+    def __init__(self, num_steps, leak_mem=0.95, img_size=28, num_classes=10, path=None):
         super(SNN_Conv, self).__init__()
 
         self.num_steps = num_steps
@@ -31,6 +31,17 @@ class SNN_Conv(nn.Module):
         self.num_classes = num_classes
         self.batch_num = self.num_steps
         self.spike_fn = snn_bp.apply
+        self.path = path
+
+        self.flops_data = {
+            'cnn_neuron_flops': 0,
+            'cnn_flops': 0,
+            'cnn_bn_flops': 0,
+            'pool_flops': 0,
+            'fc_neuron_flops': 0,
+            'fc_flops': 0,
+            'fc_bn_flops': 0,
+        }
 
         self.conv1 = nn.Conv2d(1, 64, kernel_size=3, stride=1, padding=1, bias=False)
         self.bsnn1 = nn.ModuleList([nn.BatchNorm2d(64, eps=1e-4, momentum=0.1, affine=True) for i in range(self.batch_num)])
@@ -59,6 +70,7 @@ class SNN_Conv(nn.Module):
                 torch.nn.init.xavier_uniform_(m.weight, gain=2)
 
     def forward(self, inp):
+
         batch_size = inp.size(0)
         mem_conv1 = torch.zeros(batch_size, 64, self.img_size, self.img_size).cuda()
         mem_conv2 = torch.zeros(batch_size, 64, self.img_size, self.img_size).cuda()
@@ -66,6 +78,12 @@ class SNN_Conv(nn.Module):
 
         mem_fc1 = torch.zeros(batch_size, 512).cuda()
         mem_fc2 = torch.zeros(batch_size, self.num_classes).cuda()
+
+        rst_conv1 = torch.zeros_like(mem_conv1).cuda()
+        rst_conv2 = torch.zeros_like(mem_conv2).cuda()
+        rst_conv_list = [rst_conv1, rst_conv2]
+
+        rst_fc1 = torch.zeros_like(mem_fc1).cuda()
 
         for t in range(self.num_steps):
 
@@ -76,9 +94,14 @@ class SNN_Conv(nn.Module):
                 mem_conv_list[i] = self.leak_mem * mem_conv_list[i] + self.bsnn_list[i][t](self.conv_list[i](out_prev))
                 mem_thr = (mem_conv_list[i] / self.conv_list[i].threshold) - 1.0
                 out = self.spike_fn(mem_thr)
-                rst = torch.zeros_like(mem_conv_list[i]).cuda()
-                rst[mem_thr > 0] = self.conv_list[i].threshold
-                mem_conv_list[i] = mem_conv_list[i] - rst
+
+                out_sparsity = (torch.sum(out_prev) / out_prev.numel()).item()
+                batch_size, out_channels, out_height, out_width = out_prev.shape
+                _, in_channels, kernel_height, kernel_width = self.conv_list[i].weight.shape
+
+                rst_conv_list[i].zero_()
+                rst_conv_list[i][mem_thr > 0] = self.conv_list[i].threshold
+                mem_conv_list[i] -= rst_conv_list[i]
                 out_prev = out.clone()
 
 
@@ -86,18 +109,38 @@ class SNN_Conv(nn.Module):
                     out = self.pool_list[i](out_prev)
                     out_prev = out.clone()
 
+                pool_out_sparsity = torch.sum(out_prev) / out_prev.numel()
+
+                self.flops_data['cnn_neuron_flops'] += 2 * batch_size * out_channels * out_height * out_width * (10**-12)
+                self.flops_data['cnn_flops'] += batch_size * out_channels * out_height * out_width * in_channels * kernel_height * kernel_width * out_sparsity * (10**-12)
+                self.flops_data['cnn_bn_flops'] += batch_size * out_channels * out_height * out_width * 7 * (10**-12)
 
             out_prev = out_prev.reshape(batch_size, -1)
 
             mem_fc1 = self.leak_mem * mem_fc1 + self.bsnn_fc[t](self.fc1(out_prev))
             mem_thr = (mem_fc1 / self.fc1.threshold) - 1.0
             out = self.spike_fn(mem_thr)
-            rst = torch.zeros_like(mem_fc1).cuda()
-            rst[mem_thr > 0] = self.fc1.threshold
-            mem_fc1 = mem_fc1 - rst
-            out_prev = out.clone()
 
+            m, k = out_prev.shape
+            k, n = self.fc1.weight.shape
+            out_sparsity = torch.sum(out_prev) / out_prev.numel()
+            self.flops_data['fc_neuron_flops'] += 2 * m * k * (10**-12)
+            self.flops_data['fc_flops'] += m * k * n * out_sparsity * (10**-12)
+            self.flops_data['fc_bn_flops'] += m * n * 7 * (10**-12)
+            rst_fc1.zero_()
+            rst_fc1[mem_thr > 0] = self.fc1.threshold
+            mem_fc1 -= rst_fc1
+            out_prev = out.clone()
+            out_sparsity = torch.sum(out_prev) / out_prev.numel()
             mem_fc2 = mem_fc2 + self.fc2(out_prev)
+
+            m, k = out_prev.shape
+            k, n = self.fc2.weight.shape
+            self.flops_data['fc_flops'] += m * k * n * out_sparsity * (10**-12)
+            
+
+            pkernel_size = self.pool.kernel_size
+            self.flops_data['pool_flops'] += batch_size * out_channels * (out_height // pkernel_size) * (out_width // pkernel_size) * pkernel_size * pkernel_size * pool_out_sparsity * (10**-12)
 
         out_voltage = mem_fc2 / self.num_steps
 
