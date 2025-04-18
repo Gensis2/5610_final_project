@@ -116,4 +116,4 @@ def case_study():
 
                 df = pd.concat([df, new_df], ignore_index=True)
 
-    df.to_csv('cnn_results.csv', index=False)
+    df.to_csv('data_processing/cnn_results.csv', index=False)
