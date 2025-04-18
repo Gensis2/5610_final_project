@@ -70,6 +70,7 @@ def generate_graphs(df, x, y, file_name, output_dir):
 
     plt.xlabel(x_label)
     plt.ylabel(y_label)
+    plt.grid()
     plt.savefig(os.path.join(output_dir, f'{file_name}.png'))
     plt.close()
 
@@ -86,7 +87,7 @@ if __name__ == "__main__":
     for label in labels:
         if label not in ['testing_acc', 'training_loss']:
             acc_df, loss_df = accuracy_select(data, label)  # Pass the loaded data to the function
-            
+
             generate_graphs(acc_df, f'{label}', 'testing_acc', f'{label}_testing_acc', args.output)  # Pass the loaded data to the function
             generate_graphs(loss_df, f'{label}', 'training_loss', f'{label}_training_loss', args.output)  # Pass the loaded data to the function
 
