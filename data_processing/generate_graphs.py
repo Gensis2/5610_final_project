@@ -47,9 +47,16 @@ def generate_graphs(df, x, y, file_name, output_dir):
     x_data = df[x]
     y_data = df[y]
 
+    # Get retrieve the values from the columns that are held constant
+    df = df.drop(columns=[x, 'testing_acc', 'training_loss'])  # Drop the columns that are not needed
+    
+    constant_values = df.iloc[0].to_dict()  # Get the first row as a dictionary
+    constant_values_str = ', '.join([f"{key}: {value}" for key, value in constant_values.items()])  # Create a string representation of the constant values
+    constant_values_str = constant_values_str.replace('_', ' ')  # Replace '_' with ' '
+
     # Example: Generate a simple line graph
     plt.figure(figsize=(10, 5))
-    plt.plot(range(len(x_data)), y_data, marker='o')  # Use range(len(x_data)) for consistent spacing
+    line = plt.plot(range(len(x_data)), y_data, marker='o', label=constant_values_str)  # Use range(len(x_data)) for consistent spacing
 
     match x:
         case 'num_epochs':
@@ -71,7 +78,10 @@ def generate_graphs(df, x, y, file_name, output_dir):
     plt.xticks(ticks=range(len(x_data)), labels=x_data, rotation=45)  # Ensure xticks match x_data
     plt.xlabel(x_label)
     plt.ylabel(y_label)
+    plt.title(f'{y_label} vs. {x_label}')
+    plt.legend()
     plt.grid()
+    plt.tight_layout()
     plt.savefig(os.path.join(output_dir, f'{file_name}.png'))
     plt.close()
 
