@@ -65,14 +65,17 @@ if __name__ == "__main__":
 
     data = load_data(args.input)
 
-    acc_df, loss_df = accuracy_select(data, 'label')  # Pass the loaded data to the function
+    labels = data.columns.tolist()
+    for label in labels:
+        if label not in ['testing_acc', 'training_loss']:
+            acc_df, loss_df = accuracy_select(data, 'label')  # Pass the loaded data to the function
 
-    print(acc_df)
-    print(loss_df)
+            print(acc_df)
+            print(loss_df)
 
-    # TODO: WIP
-    generate_graphs(acc_df, 'batch_size', 'testing_acc', 'Batch Size vs. Testing Accuracy', 'batch_size_testing_acc', args.output)  # Pass the loaded data to the function
-    generate_graphs(loss_df, 'batch_size', 'training_loss', 'Batch Size vs. Training Loss', 'batch_size_training_loss', args.output)  # Pass the loaded data to the function
+            # TODO: WIP
+            generate_graphs(acc_df, 'batch_size', 'testing_acc', 'Batch Size vs. Testing Accuracy', 'batch_size_testing_acc', args.output)  # Pass the loaded data to the function
+            generate_graphs(loss_df, 'batch_size', 'training_loss', 'Batch Size vs. Training Loss', 'batch_size_training_loss', args.output)  # Pass the loaded data to the function
 
 
 
