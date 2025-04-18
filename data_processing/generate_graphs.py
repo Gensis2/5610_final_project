@@ -137,7 +137,7 @@ if __name__ == "__main__":
     # WIP
     # labels = cnn_flops_data.columns.tolist()
     # for label in labels:
-    #     if label not in ['total_flops', 'conv_flops', 'conv_bn_flops', 'pool_flops', 'fc_flops', 'fc_bn_flops']:
+    #     if label not in ['total_flops', 'conv_flops', 'conv_bn_flops', 'pool_flops', 'fc_flops', 'fc_bn_flops', 'batch_size', 'num_epochs']:
 
     #         total_flops_df = flops_select(cnn_flops_data, label)  # Pass the loaded data to the function
     #         total_flops_df = total_flops_df.sort_values(by=label, ascending=True)  # Sort the dataframe by label in ascending order
