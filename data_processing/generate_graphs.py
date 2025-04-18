@@ -68,6 +68,7 @@ def generate_graphs(df, x, y, file_name, output_dir):
         case 'training_loss':
             y_label = 'Training Loss'
 
+    plt.xticks(ticks=x_data, labels=x_data, rotation=45)
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.grid()
@@ -76,7 +77,7 @@ def generate_graphs(df, x, y, file_name, output_dir):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input', type=str, default='cnn_results.csv',required=True, help='Path to the input CSV file')
+    parser.add_argument('--input', type=str, default='cnn_results.csv', help='Path to the input CSV file')
     parser.add_argument('--output', type=str, default='graphs', help='Directory to save the generated graphs')
 
     args = parser.parse_args()
@@ -93,8 +94,8 @@ if __name__ == "__main__":
 
 
 
-    
 
-    
-    
+
+
+
 
