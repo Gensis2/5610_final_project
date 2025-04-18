@@ -28,7 +28,7 @@ def accuracy_select(df, label):
 
     return acc_df, loss_df
 
-def generate_graphs(df, x, y, title, file_name, output_dir):
+def generate_graphs(df, x, y, file_name, output_dir):
     '''
     Generates a graph from the given DataFrame and saves it to the specified directory.
     df : DataFrame to plot
@@ -50,9 +50,26 @@ def generate_graphs(df, x, y, title, file_name, output_dir):
     # Example: Generate a simple line graph
     plt.figure(figsize=(10, 5))
     plt.plot(x_data, y_data)
-    plt.title(title)
-    plt.xlabel(x)
-    plt.ylabel(y)
+
+    match x:
+        case 'num_epochs':
+            x_label = 'Epochs'
+
+        case 'batch_size':
+            x_label = 'Batch Size'
+
+        case 'lr':
+            x_label = 'Learning Rate'
+
+    match y:
+        case 'testing_acc':
+            y_label = 'Testing Accuracy'
+
+        case 'training_loss':
+            y_label = 'Training Loss'
+
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
     plt.savefig(os.path.join(output_dir, f'{file_name}.png'))
     plt.close()
 
@@ -68,14 +85,10 @@ if __name__ == "__main__":
     labels = data.columns.tolist()
     for label in labels:
         if label not in ['testing_acc', 'training_loss']:
-            acc_df, loss_df = accuracy_select(data, 'label')  # Pass the loaded data to the function
-
-            print(acc_df)
-            print(loss_df)
-
-            # TODO: WIP
-            generate_graphs(acc_df, 'batch_size', 'testing_acc', 'Batch Size vs. Testing Accuracy', 'batch_size_testing_acc', args.output)  # Pass the loaded data to the function
-            generate_graphs(loss_df, 'batch_size', 'training_loss', 'Batch Size vs. Training Loss', 'batch_size_training_loss', args.output)  # Pass the loaded data to the function
+            acc_df, loss_df = accuracy_select(data, label)  # Pass the loaded data to the function
+            
+            generate_graphs(acc_df, f'{label}', 'testing_acc', f'{label}_testing_acc', args.output)  # Pass the loaded data to the function
+            generate_graphs(loss_df, f'{label}', 'training_loss', f'{label}_training_loss', args.output)  # Pass the loaded data to the function
 
 
 
