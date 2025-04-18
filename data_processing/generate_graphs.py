@@ -69,13 +69,14 @@ def generate_graphs(df, x, y, file_name, output_dir):
     if 'testing_acc' in df.columns and 'training_loss' in df.columns:
         df = df.drop(columns=['testing_acc', 'training_loss'])
 
+    # disabling the FLOPS graphing features for now.
     # Check if the DataFrame contains any of the CNN FLOPS columns
-    cnn_flops_columns = ['total_flops', 'conv_flops', 'conv_bn_flops', 'pool_flops', 'fc_flops', 'fc_bn_flops']
-    has_cnn_flops_columns = any(col in df.columns for col in cnn_flops_columns)
+    # cnn_flops_columns = ['total_flops', 'conv_flops', 'conv_bn_flops', 'pool_flops', 'fc_flops', 'fc_bn_flops']
+    # has_cnn_flops_columns = any(col in df.columns for col in cnn_flops_columns)
 
-    # Drop the CNN FLOPS columns if they exist
-    if has_cnn_flops_columns:
-        df = df.drop(columns=cnn_flops_columns)
+    # # Drop the CNN FLOPS columns if they exist
+    # if has_cnn_flops_columns:
+    #     df = df.drop(columns=cnn_flops_columns)
     
     constant_values = df.iloc[0].to_dict()  # Get the first row as a dictionary
     constant_values_str = ', '.join([f"{key}: {value}" for key, value in constant_values.items()])  # Create a string representation of the constant values
@@ -134,14 +135,14 @@ if __name__ == "__main__":
             generate_graphs(loss_df, f'{label}', 'training_loss', f'{label}_training_loss_cnn', args.output)  # Pass the loaded data to the function
 
     # WIP
-    labels = cnn_flops_data.columns.tolist()
-    for label in labels:
-        if label not in ['total_flops', 'conv_flops', 'conv_bn_flops', 'pool_flops', 'fc_flops', 'fc_bn_flops']:
+    # labels = cnn_flops_data.columns.tolist()
+    # for label in labels:
+    #     if label not in ['total_flops', 'conv_flops', 'conv_bn_flops', 'pool_flops', 'fc_flops', 'fc_bn_flops']:
 
-            total_flops_df = flops_select(cnn_flops_data, label)  # Pass the loaded data to the function
-            total_flops_df = total_flops_df.sort_values(by=label, ascending=True)  # Sort the dataframe by label in ascending order
+    #         total_flops_df = flops_select(cnn_flops_data, label)  # Pass the loaded data to the function
+    #         total_flops_df = total_flops_df.sort_values(by=label, ascending=True)  # Sort the dataframe by label in ascending order
 
-            generate_graphs(total_flops_df, f'{label}', 'total_flops', f'{label}_total_flops_cnn', args.output)  # Pass the loaded data to the function
+    #         generate_graphs(total_flops_df, f'{label}', 'total_flops', f'{label}_total_flops_cnn', args.output)  # Pass the loaded data to the function
 
 
 
