@@ -92,12 +92,12 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    data = load_data(args.input)
+    cnn_result_data = load_data(args.input)
 
-    labels = data.columns.tolist()
+    labels = cnn_result_data.columns.tolist()
     for label in labels:
         if label not in ['testing_acc', 'training_loss']:
-            acc_df, loss_df = accuracy_select(data, label)  # Pass the loaded data to the function
+            acc_df, loss_df = accuracy_select(cnn_result_data, label)  # Pass the loaded data to the function
 
             generate_graphs(acc_df, f'{label}', 'testing_acc', f'{label}_testing_acc', args.output)  # Pass the loaded data to the function
             generate_graphs(loss_df, f'{label}', 'training_loss', f'{label}_training_loss', args.output)  # Pass the loaded data to the function
