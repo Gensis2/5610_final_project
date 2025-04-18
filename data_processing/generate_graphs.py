@@ -123,6 +123,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     cnn_result_data = load_data('data_processing\cnn_results.csv')
+    # snn_result_data = load_data('data_processing\snn_results.csv')
     cnn_flops_data = load_data('data_processing\cnn_flops.csv')
     snn_flops_data = load_data('data_processing\snn_flops.csv')
 
