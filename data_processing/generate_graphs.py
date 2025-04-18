@@ -7,10 +7,18 @@ def load_data(file_path):
     return pd.read_csv(file_path)
 
 def accuracy_select(df, label):
+    # Initialize the row to be selected
     acc_row = df
+
+    # Select the row with the highest testing accuracy and lowest training loss
+    # and match the other columns
     highest_accuracy_row = acc_row.loc[acc_row['testing_acc'].idxmax()]
     lowest_loss_row = acc_row.loc[acc_row['training_loss'].idxmin()]
+
+    # Get the columns to match
     columns_to_match = [col for col in acc_row.columns if col not in [label, 'testing_acc', 'training_loss']]
+
+    # Select the rows that match the highest accuracy and lowest loss
     acc_df = acc_row[
         acc_row[columns_to_match].eq(highest_accuracy_row[columns_to_match]).all(axis=1)
     ]
@@ -20,53 +28,32 @@ def accuracy_select(df, label):
 
     return acc_df, loss_df
 
-# Find best lr and epoch while varying batch size
-def find_best_lr_and_epoch(data):
-    # Implement logic to find the best learning rate and epoch based on the data
+def generate_graphs(df, x, y, title, file_name, output_dir):
+    '''
+    Generates a graph from the given DataFrame and saves it to the specified directory.
+    df : DataFrame to plot
+    x : x-axis column name
+    y : y-axis column name
+    title : Title of the graph
+    file_name : Name of the file to save the graph
+    output_dir : Directory to save the graph
 
-    # Obtain a list of all batch sizes
-    batch_sizes = data['batch_size'].unique()
-    print("Batch Sizes: ", batch_sizes)
+    '''
 
-    # Obtain a list of all learning rates
-    learning_rates = data['lr'].unique()
-
-    # Obtain a list of all epochs
-    epochs = data['num_epochs'].unique()
-
-    # Initialize variables to store the best learning rate and epoch
-    best_lr = None
-    best_epoch = None
-        
-    # Organize data by same lr and epoch, varying batch size
-    for lr in learning_rates:
-        for epoch in epochs:
-            subset = data[(data['lr'] == lr) & (data['num_epochs'] == epoch)]
-            if not subset.empty:
-                # Calculate the average accuracy for the current learning rate and epoch
-                print(subset)
-                avg_accuracy = subset['testing_acc'].mean()
-                print(f"Learning Rate: {lr}, Epoch: {epoch}, Average Accuracy: {avg_accuracy}")
-                # Update the best learning rate and epoch if necessary
-                if best_lr is None or avg_accuracy > best_accuracy:
-                    best_lr = lr
-                    best_epoch = epoch
-                    best_accuracy = avg_accuracy
-                    print(f"New Best Learning Rate: {best_lr}, Epoch: {best_epoch}, Accuracy: {best_accuracy}")
-    
-    return best_lr, best_epoch
-
-def generate_graphs(x, y, output_dir):
+    # Create the output directory if it doesn't exist
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
+    x_data = df[x]
+    y_data = df[y]
+
     # Example: Generate a simple line graph
     plt.figure(figsize=(10, 5))
-    plt.plot(data['x'], data['y'])
-    plt.title('Sample Graph')
-    plt.xlabel('X-axis')
-    plt.ylabel('Y-axis')
-    plt.savefig(os.path.join(output_dir, 'sample_graph.png'))
+    plt.plot(x_data, y_data)
+    plt.title(title)
+    plt.xlabel(x)
+    plt.ylabel(y)
+    plt.savefig(os.path.join(output_dir, f'{file_name}.png'))
     plt.close()
 
 if __name__ == "__main__":
@@ -78,7 +65,18 @@ if __name__ == "__main__":
 
     data = load_data(args.input)
 
-    best_lr, best_epoch = find_best_lr_and_epoch(data)
+    acc_df, loss_df = accuracy_select(data, 'label')  # Pass the loaded data to the function
+
+    print(acc_df)
+    print(loss_df)
+
+    # TODO: WIP
+    generate_graphs(acc_df, 'batch_size', 'testing_acc', 'Batch Size vs. Testing Accuracy', 'batch_size_testing_acc', args.output)  # Pass the loaded data to the function
+    generate_graphs(loss_df, 'batch_size', 'training_loss', 'Batch Size vs. Training Loss', 'batch_size_training_loss', args.output)  # Pass the loaded data to the function
+
+
+
+    
 
     
     
