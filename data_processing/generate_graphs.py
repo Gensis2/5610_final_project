@@ -28,15 +28,33 @@ def accuracy_select(df, label):
 
     return acc_df, loss_df
 
-def flops_select(df, label):
+# def flops_select(df, label):
+#     # Initialize the row to be selected
+#     flops_row = df
+
+#     # Select the row with the lowest total FLOPS
+#     lowest_flops_row = flops_row.loc[flops_row['total_flops'].idxmin()]
+
+#     # Get the columns to match
+#     columns_to_match = [col for col in flops_row.columns if col not in [label, 'total_flops', 'conv_flops', 'conv_bn_flops', 'pool_flops', 'fc_flops', 'fc_bn_flops']]
+
+#     # Select the rows that match the lowest flops
+#     flops_df = flops_row[
+#         flops_row[columns_to_match].eq(lowest_flops_row[columns_to_match]).all(axis=1)
+#     ]
+
+#     return flops_df
+
+def snn_flops_select(df, label):
     # Initialize the row to be selected
     flops_row = df
 
     # Select the row with the lowest total FLOPS
-    lowest_flops_row = flops_row.loc[flops_row['total_flops'].idxmin()]
+    lowest_flops_row = flops_row.loc[flops_row['total_flops'].idxmax()]
 
     # Get the columns to match
-    columns_to_match = [col for col in flops_row.columns if col not in [label, 'total_flops', 'conv_flops', 'conv_bn_flops', 'pool_flops', 'fc_flops', 'fc_bn_flops']]
+    columns_to_match = [col for col in flops_row.columns if col not in [label, 'total_flops', 'conv_neuron_flops', 'conv_flops', 'conv_bn_flops', 'pool_flops',
+       'fc_neuron_flops', 'fc_flops', 'fc_bn_flops']]
 
     # Select the rows that match the lowest flops
     flops_df = flops_row[
@@ -69,14 +87,14 @@ def generate_graphs(df, x, y, file_name, output_dir):
     if 'testing_acc' in df.columns and 'training_loss' in df.columns:
         df = df.drop(columns=['testing_acc', 'training_loss'])
 
-    # disabling the FLOPS graphing features for now.
-    # Check if the DataFrame contains any of the CNN FLOPS columns
-    # cnn_flops_columns = ['total_flops', 'conv_flops', 'conv_bn_flops', 'pool_flops', 'fc_flops', 'fc_bn_flops']
-    # has_cnn_flops_columns = any(col in df.columns for col in cnn_flops_columns)
+    # Check if the DataFrame contains any of the SNN FLOPS columns
+    snn_flops_columns = ['total_flops', 'conv_neuron_flops', 'conv_flops', 'conv_bn_flops', 'pool_flops',
+       'fc_neuron_flops', 'fc_flops', 'fc_bn_flops', 'normalized_total_flops']
+    has_snn_flops_columns = any(col in df.columns for col in snn_flops_columns)
 
-    # # Drop the CNN FLOPS columns if they exist
-    # if has_cnn_flops_columns:
-    #     df = df.drop(columns=cnn_flops_columns)
+    # Drop the CNN FLOPS columns if they exist
+    if has_snn_flops_columns:
+        df = df.drop(columns=snn_flops_columns)
     
     constant_values = df.iloc[0].to_dict()  # Get the first row as a dictionary
     constant_values_str = ', '.join([f"{key}: {value}" for key, value in constant_values.items()])  # Create a string representation of the constant values
@@ -96,6 +114,12 @@ def generate_graphs(df, x, y, file_name, output_dir):
         case 'lr':
             x_label = 'Learning Rate'
 
+        case 'leak_mem':
+            x_label = 'Leakage Memory'
+        
+        case 'num_steps':
+            x_label = 'Number of Time Steps'
+
     match y:
         case 'testing_acc':
             y_label = 'Testing Accuracy'
@@ -103,8 +127,8 @@ def generate_graphs(df, x, y, file_name, output_dir):
         case 'training_loss':
             y_label = 'Training Loss'
 
-        case 'total_flops':
-            y_label = 'Total FLOPS'
+        case 'normalized_total_flops':
+            y_label = 'Normalized FLOPS'
 
     plt.xticks(ticks=range(len(x_data)), labels=x_data, rotation=45)  # Ensure xticks match x_data
     plt.xlabel(x_label)
@@ -135,17 +159,34 @@ if __name__ == "__main__":
             generate_graphs(acc_df, f'{label}', 'testing_acc', f'{label}_testing_acc_cnn', args.output)  # Pass the loaded data to the function
             generate_graphs(loss_df, f'{label}', 'training_loss', f'{label}_training_loss_cnn', args.output)  # Pass the loaded data to the function
 
-    # WIP
-    # labels = cnn_flops_data.columns.tolist()
-    # for label in labels:
-    #     if label not in ['total_flops', 'conv_flops', 'conv_bn_flops', 'pool_flops', 'fc_flops', 'fc_bn_flops', 'batch_size', 'num_epochs']:
+    labels = snn_flops_data.columns.tolist()
+    for label in labels:
+        if label not in ['total_flops', 'conv_neuron_flops', 'conv_flops', 'conv_bn_flops', 'pool_flops',
+       'fc_neuron_flops', 'fc_flops', 'fc_bn_flops', 'batch_size', 'num_epochs']:
+            
+            # Select the row with the lowest total FLOPS and match the other columns
+            snn_total_flops_df = snn_flops_select(snn_flops_data, label)  # Pass the loaded data to the function
+            snn_total_flops_df = snn_total_flops_df.sort_values(by=label, ascending=True)  # Sort the dataframe by label in ascending order
 
-    #         total_flops_df = flops_select(cnn_flops_data, label)  # Pass the loaded data to the function
-    #         total_flops_df = total_flops_df.sort_values(by=label, ascending=True)  # Sort the dataframe by label in ascending order
+            # add a new column to store normalized total_flops value from snn by cnn_total_flops_df
+            # first need to get the total_flops value from cnn_total_flops_df using 
+            # the batch_size and num_epochs values from snn_total_flops_df
+            # this is done by filtering the cnn_flops_data dataframe using the batch_size and num_epochs values from snn_total_flops_df
+            cnn_total_flops_df = cnn_flops_data[(cnn_flops_data['batch_size'] == snn_total_flops_df['batch_size'].values[0]) & (cnn_flops_data['num_epochs'] == snn_total_flops_df['num_epochs'].values[0])]
 
-    #         generate_graphs(total_flops_df, f'{label}', 'total_flops', f'{label}_total_flops_cnn', args.output)  # Pass the loaded data to the function
+            # check if the cnn_total_flops_df is empty
+            if cnn_total_flops_df.empty:
+                print(f'No matching cnn_total_flops_df found for batch_size: {snn_total_flops_df["batch_size"].values[0]} and num_epochs: {snn_total_flops_df["num_epochs"].values[0]}')
+                continue
 
+            # get the total_flops value from cnn_total_flops_df
+            cnn_total_flops = cnn_total_flops_df['total_flops'].values[0]
+            
+            # add new column to snn_total_flops_df
+            snn_total_flops_df['normalized_total_flops'] = snn_total_flops_df['total_flops'] / cnn_total_flops
+            snn_total_flops_df = snn_total_flops_df.sort_values(by=label, ascending=True)
 
+            generate_graphs(snn_total_flops_df, label, 'normalized_total_flops', f'{label}_normalized_total_flops_snn', args.output)  # Pass the loaded data to the function
 
 
 
