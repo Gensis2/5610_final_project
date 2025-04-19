@@ -9,8 +9,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    print(args.case_study)
-
     if args.case_study:
         print("Running case study...")
     else:
