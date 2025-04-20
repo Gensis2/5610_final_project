@@ -28,23 +28,6 @@ def accuracy_select(df, label):
 
     return acc_df, loss_df
 
-# def flops_select(df, label):
-#     # Initialize the row to be selected
-#     flops_row = df
-
-#     # Select the row with the lowest total FLOPS
-#     lowest_flops_row = flops_row.loc[flops_row['total_flops'].idxmin()]
-
-#     # Get the columns to match
-#     columns_to_match = [col for col in flops_row.columns if col not in [label, 'total_flops', 'conv_flops', 'conv_bn_flops', 'pool_flops', 'fc_flops', 'fc_bn_flops']]
-
-#     # Select the rows that match the lowest flops
-#     flops_df = flops_row[
-#         flops_row[columns_to_match].eq(lowest_flops_row[columns_to_match]).all(axis=1)
-#     ]
-
-#     return flops_df
-
 def snn_flops_select(df, label):
     # Initialize the row to be selected
     flops_row = df
@@ -151,6 +134,9 @@ if __name__ == "__main__":
     cnn_flops_data = load_data('data_processing\cnn_flops.csv')
     snn_flops_data = load_data('data_processing\snn_flops.csv')
 
+    # Generate graphs for CNN and SNN results
+    # Iterate through the columns of the DataFrame and generate graphs for each label
+    # For CNN results
     labels = cnn_result_data.columns.tolist()
     for label in labels:
         if label not in ['testing_acc', 'training_loss']:
@@ -159,6 +145,8 @@ if __name__ == "__main__":
             generate_graphs(acc_df, f'{label}', 'testing_acc', f'{label}_testing_acc_cnn', args.output)  # Pass the loaded data to the function
             generate_graphs(loss_df, f'{label}', 'training_loss', f'{label}_training_loss_cnn', args.output)  # Pass the loaded data to the function
 
+    # Iterate through the columns of the DataFrame and generate graphs for each label
+    # For SNN results
     labels = snn_result_data.columns.tolist()
     for label in labels:
         if label not in ['testing_acc', 'training_loss']:
@@ -167,6 +155,8 @@ if __name__ == "__main__":
             generate_graphs(snn_acc_df, f'{label}', 'testing_acc', f'{label}_testing_acc_snn', args.output)  # Pass the loaded data to the function
             generate_graphs(snn_loss_df, f'{label}', 'training_loss', f'{label}_training_loss_snn', args.output)  # Pass the loaded data to the function
 
+    # Generate graphs for normalized SNN FLOPS
+    # Iterate through the columns of the DataFrame and generate graphs for each label excluding the FLOPS columns and the batch_size and num_epochs columns
     labels = snn_flops_data.columns.tolist()
     for label in labels:
         if label not in ['total_flops', 'conv_neuron_flops', 'conv_flops', 'conv_bn_flops', 'pool_flops',
