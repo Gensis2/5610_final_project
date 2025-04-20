@@ -100,7 +100,7 @@ def cnn_run(batch_size=64, lr=0.1, num_epochs=50, img_size=28, num_classes=10):
     return pd.DataFrame([[batch_size, lr, num_epochs, train_loss.avg, format(test_accuracy)]], columns=['batch_size', 'lr', 'num_epochs', 'training_loss', 'testing_acc'])
 
 def case_study():
-    batch_size_list = [8, 16, 32, 64]
+    batch_size_list = [32, 64, 128, 256]
     lr_list = [0.2, 0.1, 0.05, 0.01]
     num_epochs_list = [5, 10, 25, 50]
 

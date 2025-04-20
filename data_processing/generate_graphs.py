@@ -54,9 +54,15 @@ def generate_graphs(df, x, y, file_name, output_dir):
     constant_values_str = ', '.join([f"{key}: {value}" for key, value in constant_values.items()])  # Create a string representation of the constant values
     constant_values_str = constant_values_str.replace('_', ' ')  # Replace '_' with ' '
 
+    print(x_data)
+    print(y_data)
+    print(constant_values_str)
+    
+
     # Example: Generate a simple line graph
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=(6, 3))
     line = plt.plot(range(len(x_data)), y_data, marker='o', label=constant_values_str)  # Use range(len(x_data)) for consistent spacing
+    exit()
 
     match x:
         case 'num_epochs':
@@ -88,7 +94,7 @@ def generate_graphs(df, x, y, file_name, output_dir):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--input', type=str, default='cnn_results.csv', help='Path to the input CSV file')
-    parser.add_argument('--output', type=str, default='graphs', help='Directory to save the generated graphs')
+    parser.add_argument('--output', type=str, default='snn_graphs', help='Directory to save the generated graphs')
 
     args = parser.parse_args()
 

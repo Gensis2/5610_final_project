@@ -116,11 +116,11 @@ def snn_run(batch_size=64, num_steps=10, lr=0.1, leak_mem=0.99, num_epochs=50, i
 
 def case_study():
 
-    batch_size_list = [8, 16, 32, 64] # 8
-    lr_list = [0.2, 0.1, 0.05, 0.01] # 0.2
-    num_epochs_list = [5, 10, 25, 50] # 50
-    num_steps_list = [1, 5, 10, 25, 50] # 10
-    leak_mem_list = [0.995, 0.99, 0.985, 0.98, 0.975] # 0.995
+    batch_size_list = [64]
+    lr_list = [0.05]
+    num_epochs_list = [50]
+    num_steps_list = [5, 10, 25, 50]
+    leak_mem_list = [0.995, 0.99, 0.985, 0.98]
 
     img_size = 28
     num_classes = 10
@@ -135,8 +135,10 @@ def case_study():
                         new_df = snn_run(batch_size=batch_size, lr=lr, num_epochs=num_epochs, img_size=img_size, num_classes=num_classes, num_steps=num_steps, leak_mem=leak_mem)
 
                         df = pd.concat([df, new_df], ignore_index=True)
-
-    df.to_csv('snn_results.csv', index=False)
+                path = f'batch_size/{batch_size}/lr/{lr}/num_epochs/{num_epochs}/'
+                if not os.path.exists(path):
+                    os.makedirs(path)
+                df.to_csv(f'{path}snn_results.csv', index=False)
 
 def single_run():
     batch_size = 64

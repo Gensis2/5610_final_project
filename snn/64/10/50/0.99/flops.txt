@@ -1,9 +1,9 @@
-FLOPS
-Conv Neuron Flops: 0
-Conv Flops: 0
-Conv BN Flops: 0
-Pool Flops: 0
-FC Neuron Flops: 0
-FC Flops: 0
-FC BN Flops: 0
-Total Flops: 0
+SNN FLOPS
+Conv Neuron Flops: 0.315951999999654
+Conv Flops: 10.856154385347958
+Conv BN Flops: 1.1058320000007478
+Pool Flops: 0.028032558038830757
+FC Neuron Flops: 0.0031744000000022954
+FC Flops: 3.5909173488616943
+FC BN Flops: 0.2722048000000656
+Total Flops: 16.17226791381836
