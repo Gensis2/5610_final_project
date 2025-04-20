@@ -147,7 +147,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     cnn_result_data = load_data('data_processing\cnn_results.csv')
-    # snn_result_data = load_data('data_processing\snn_results.csv')
+    snn_result_data = load_data('data_processing\snn_results.csv')
     cnn_flops_data = load_data('data_processing\cnn_flops.csv')
     snn_flops_data = load_data('data_processing\snn_flops.csv')
 
@@ -158,6 +158,14 @@ if __name__ == "__main__":
 
             generate_graphs(acc_df, f'{label}', 'testing_acc', f'{label}_testing_acc_cnn', args.output)  # Pass the loaded data to the function
             generate_graphs(loss_df, f'{label}', 'training_loss', f'{label}_training_loss_cnn', args.output)  # Pass the loaded data to the function
+
+    labels = snn_result_data.columns.tolist()
+    for label in labels:
+        if label not in ['testing_acc', 'training_loss']:
+            snn_acc_df, snn_loss_df = accuracy_select(cnn_result_data, label)  # Pass the loaded data to the function
+
+            generate_graphs(snn_acc_df, f'{label}', 'testing_acc', f'{label}_testing_acc_snn', args.output)  # Pass the loaded data to the function
+            generate_graphs(snn_loss_df, f'{label}', 'training_loss', f'{label}_training_loss_snn', args.output)  # Pass the loaded data to the function
 
     labels = snn_flops_data.columns.tolist()
     for label in labels:
