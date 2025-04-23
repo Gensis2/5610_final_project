@@ -14,6 +14,12 @@ The current figures produce the same trends as the ones used in the powerpoint, 
 
 To rerun our code, follow the steps below.
 
+All needed dependencies are listed in requirements.txt. to install, run
+
+pip install -r requirements.txt
+
+If you want to install pytorch with cuda (highly recommend to run the case study) please follow the instructions from [PyTorch](https://pytorch.org/get-started/locally/)
+
 To run the performance (accuracy and loss) and efficiency (FLOPs) case studys, run
 python -m training.performance_case_study
 python -m training.efficiency_case_study
