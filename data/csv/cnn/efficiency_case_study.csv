@@ -1,0 +1,2 @@
+batch_size,lr,num_epochs,training_loss,testing_accuracy,flops
+32,0.1,25,0.0013426569056076308,97.8515625,1

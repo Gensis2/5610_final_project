@@ -1,0 +1,2 @@
+batch_size,lr,num_epochs,leak_mem,num_steps,training_loss,testing_accuracy,flops
+32,0.2,50,0.985,10,0.004434223485800127,98.14453125,0.42799573012580505
