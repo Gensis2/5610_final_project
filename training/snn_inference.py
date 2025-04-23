@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 import os
 
+# Trains model, then report accuracy and flops at the end
+
 def run(batch_size=64, num_steps=10, lr=0.1, leak_mem=0.99, num_epochs=50, img_size=28, num_classes=10, case_study='accuracy', df=None):
 
     # initialize flops computation

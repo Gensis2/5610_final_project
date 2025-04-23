@@ -13,6 +13,7 @@ def load_mnist(batch_size=128, subset=10):
                 transforms.ToTensor(),
                 transforms.Normalize((0,), (1,))])
 
+    # pull data from pytorch
     mnist_train = datasets.MNIST(data_path, train=True, download=True, transform=transform)
     mnist_train = utils.data_subset(mnist_train, subset)
     mnist_test = datasets.MNIST(data_path, train=False, download=True, transform=transform)

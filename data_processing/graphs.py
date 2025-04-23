@@ -85,6 +85,7 @@ def plot_graphs(df, x, y, file_name, output_dir, mark_xlabels=True, point=None):
     constant_values_str = ', '.join([f"{key}: {value}" for key, value in constant_values.items()])  # Create a string representation of the constant values
     constant_values_str = constant_values_str.replace('_', ' ')  # Replace '_' with ' '
 
+    # convert data from df to np and sort
     x_data = x_data.to_numpy()
     y_data = y_data.to_numpy()
 
@@ -100,12 +101,14 @@ def plot_graphs(df, x, y, file_name, output_dir, mark_xlabels=True, point=None):
         else:
             line = plt.plot((x_data), y_data, marker='o', label=constant_values_str)  # Use range(len(x_data)) for consistent spacing
 
+    # if comparing to a single point, plot as scatter
     if point is not None:
         point_x = point[x]
         point_y = point[y]
-        plt.scatter(x_data, y_data, color='blue', label=constant_values_str)  # Use the same color for the line and points
-        plt.scatter(point_x.to_numpy(), point_y.to_numpy(), color='red', label='Baseline', zorder=5)  # Add the point with a label
+        plt.scatter(x_data, y_data, color='blue', label=constant_values_str) 
+        plt.scatter(point_x.to_numpy(), point_y.to_numpy(), color='red', label='Baseline', zorder=5) 
 
+    # edit x_labels
     x_label = 'FLOPS' if x == 'flops' else \
         'Leakage Voltage' if x=='leak_mem' else \
         'Epochs' if x == 'num_epochs' else \
@@ -114,12 +117,10 @@ def plot_graphs(df, x, y, file_name, output_dir, mark_xlabels=True, point=None):
         x.replace('_', ' ').title()
     y_label = y.replace('_', ' ').title()
 
+    # add xticks
     if mark_xlabels:
         plt.xticks(ticks=range(len(x_data)), labels=x_data)  # Ensure xticks match x_data
         plt.xlabel(x_label)
-
-
- # Manually set x-axis ticks
 
     plt.ylabel(y_label)
     plt.title(f'{y_label} vs. {x_label}')
