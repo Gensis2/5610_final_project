@@ -2,7 +2,7 @@ Spiking Neural Networks\
 Daniel Price & Brandon Nguyen\
 April 23, 2025
 
-5610 Intoduction to Machine Learning Final Project
+CAP 5610 Intoduction to Machine Learning Final Project
 
 Model code can be found in models/snn_conv was heavily directed by [BNTT](https://github.com/Intelligent-Computing-Lab-Yale/BNTT-Batch-Normalization-Through-Time)
 
