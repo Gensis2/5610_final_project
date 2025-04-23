@@ -16,18 +16,18 @@ To rerun our code, follow the steps below.
 
 All needed dependencies are listed in requirements.txt. to install, run
 
-pip install -r requirements.txt
+`pip install -r requirements.txt`
 
 If you want to install pytorch with cuda (highly recommend to run the case study) please follow the instructions from [PyTorch](https://pytorch.org/get-started/locally/)
 
 To run the performance (accuracy and loss) and efficiency (FLOPs) case studys, run
-python -m training.performance_case_study
-python -m training.efficiency_case_study
+`python -m training.performance_case_study`
+`python -m training.efficiency_case_study`
 
-evalutaion is a single run for both models, and was used to generate the table in the powerpoint. To run it, run
-python -m training.evaluation
+Evaluation is a single run for both models, and was used to generate the table in the powerpoint. To run it, run
+`python -m training.evaluation`
 
 Once all data has been generated, you can run
-python -m data_processing.generate_figures
+`python -m data_processing.generate_figures`
 
 This will generate all the figures in the final paper.
